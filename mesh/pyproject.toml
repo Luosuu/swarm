@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meshswarm"
+version = "0.1.0"
+description = "A leaderless mesh of LLM agents: shared world, peer messaging, no fixed workflow."
+requires-python = ">=3.10"
+dependencies = []  # standard library only
+
+[project.scripts]
+meshswarm = "meshswarm.cli:main"
+
+[tool.setuptools]
+packages = ["meshswarm"]
