@@ -219,6 +219,22 @@ class Fixes(unittest.TestCase):
         self.assertEqual(r.tasks[0]["status"], "done")
         self.assertTrue(any(e["kind"] == "no_tool_reminder" for e in r.world.log.events))
 
+    def test_truncated_reply_is_flagged_not_lost_silently(self):
+        # delegate-1's failure: replies cut off at the output limit carried unparseable tool calls.
+        def policy(agent, msgs):
+            if "hit the output length limit" in last_user(msgs):
+                return call("complete_task", task_id=1, result="wrote it in parts")
+            if any(m["role"] == "tool" for m in msgs):
+                return call("wait")
+            return {"role": "assistant", "content": "Here is the very long file: ...", "truncated": True}
+
+        r, model = run("x", policy, agents=1)
+        self.assertEqual(r.tasks[0]["status"], "done")
+        self.assertEqual(len([e for e in r.world.log.events if e["kind"] == "truncated"]), 1)
+        history = r.world.agents["agent-1"].history
+        self.assertFalse(any("truncated" in m for m in history))  # the flag never reaches the API
+        self.assertTrue(any(str(m.get("content")).endswith("[cut off]") for m in history))
+
     def test_file_tools_report_word_counts(self):
         async def go():
             w = World(Path(tempfile.mkdtemp()), ScriptedModel(lambda a, m: say("")), Limits(), EventLog())

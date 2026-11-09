@@ -1,0 +1,20 @@
+{
+  "comm": "liaisons",
+  "shared_goal": "Together the two teams are documenting a small to-do list HTTP API. The guide must match the spec exactly.",
+  "teams": [
+    {
+      "name": "spec",
+      "goal": "Design the API: write FINAL.md (under 400 words) specifying 4-6 endpoints for a to-do list service (method, path, request and response JSON, error codes). Publish the spec to the other team as shared/api-spec.md and answer their questions. Your goal is met when the guide team confirms the spec is clear enough to document.",
+      "agents": "api designer,reviewer",
+      "liaisons": 1,
+      "max_cost": 0.05
+    },
+    {
+      "name": "guide",
+      "goal": "Write FINAL.md (under 400 words): a user guide for the to-do list API with one example request per endpoint. You do not design the API: get the spec from the spec team, ask them about anything unclear, and make sure every endpoint in the guide matches their spec exactly.",
+      "agents": "technical writer,fact checker",
+      "liaisons": 1,
+      "max_cost": 0.05
+    }
+  ]
+}

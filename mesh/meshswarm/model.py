@@ -58,6 +58,8 @@ class ChatEndpoint:
         data = await self._post_with_retries(body)
         choice = data["choices"][0]["message"]
         msg: dict[str, Any] = {"role": "assistant", "content": choice.get("content") or ""}
+        if data["choices"][0].get("finish_reason") == "length":
+            msg["truncated"] = True  # removed by the agent before the message enters history
         calls = choice.get("tool_calls") or []
         if calls:
             msg["tool_calls"] = [

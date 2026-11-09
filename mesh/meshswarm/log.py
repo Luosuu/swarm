@@ -64,7 +64,8 @@ class EventLog:
         elif kind == "say":
             line = f"says: {_short(e['text'])}"
         elif kind == "tool":
-            has_own_event = {"send_message", "post_task", "claim_task", "release_task", "handover_task", "complete_task", "write_file", "spawn_agent"}
+            has_own_event = {"send_message", "post_task", "claim_task", "release_task", "handover_task", "complete_task",
+                             "write_file", "spawn_agent", "delegate", "report"}
             if e["name"] in has_own_event and '"error"' not in e["result"]:
                 return  # a message/task/file event already shows it
             line = f"{_DIM}{e['name']}({_short(e['args'], 80)}) → {_short(e['result'], 100)}{_RESET}"
@@ -77,7 +78,14 @@ class EventLog:
         elif kind in ("task_claimed", "task_released"):
             line = f"{kind.split('_')[1]} task #{e['task']}"
         elif kind == "spawn":
-            line = f"joined as {e.get('role') or 'generalist'}" + (f" (spawned by {e['spawned_by']})" if e.get("spawned_by") else "")
+            if e.get("parent"):
+                line = f"started as sub-agent of {e['parent']}" + (f" ({e['role']})" if e.get("role") else "")
+            else:
+                line = f"joined as {e.get('role') or 'generalist'}" + (f" (spawned by {e['spawned_by']})" if e.get("spawned_by") else "")
+        elif kind == "delegate":
+            line = f"{'follow-up to' if e.get('follow_up') else 'delegated to'} {e['child']}: {_short(e['task'], 120)}"
+        elif kind == "report":
+            line = f"reported to {e['parent']}{' (auto)' if e.get('auto') else ''}: {_short(e['result'], 120)}"
         elif kind in ("idle", "wake", "usage"):
             return
         else:
